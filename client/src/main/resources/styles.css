@@ -1,0 +1,60 @@
+#openPanel{
+    -fx-background-image: url(oblachko.jpg);
+}
+
+#autorization{
+    -fx-background-radius: 6;
+    -fx-border-width: 10;
+    -fx-border-radius: 0.9;
+}
+
+#registration{
+    -fx-background-radius: 6;
+    -fx-border-width: 10;
+    -fx-border-radius: 0.9;
+}
+#but0, #but1, #but2, #but3{
+    -fx-alignment: CENTER;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
+    -fx-background-color:
+            #3c7fb1,
+            linear-gradient(#fafdfe, #e8f5fc),
+            linear-gradient(#eaf6fd 0%, #d9f0fc 49%, #d4d4d5 50%, #d5d5d5 100%);
+    -fx-background-insets: 0,1,2;
+
+    -fx-text-fill: #3f5cb1;
+    -fx-font-size: 14;
+}
+#but0:hover, #but1:hover, #but2:hover, #but3:hover{
+    -fx-alignment: CENTER;
+    -fx-background-color: #1f3960;
+    -fx-background-insets: 0,1,2;
+
+    -fx-text-fill: white;
+    -fx-font-size: 14;
+}
+
+#but0:pressed, #but1:pressed, #but2:pressed, #but3:pressed{
+    -fx-background-color: #d5d5d5 ;
+}
+
+
+#label1{
+    -fx-effect: innershadow(three-pass-box , rgba(0,0,0,0.6), 2, 0.0 , 0 , 1);
+    -fx-stroke-width: 0.2;
+    -fx-stroke: #e8e7e9;
+    -fx-font-weight: bold;
+    -fx-font-size: 16;
+    -fx-fill: #0e244d;
+}
+
+#messageToUser, #messageToUserRegistration{
+    -fx-effect: innershadow(three-pass-box , rgba(0,0,0,0.6), 2, 0.0 , 0 , 1);
+    -fx-stroke-width: 0.2;
+    -fx-stroke: #e8e7e9;
+    -fx-font-weight: bold;
+    -fx-font-size: 14;
+    -fx-fill: #0e244d;
+}
+

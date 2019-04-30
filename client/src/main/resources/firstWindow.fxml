@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.Label?>
+
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Text?>
+<AnchorPane stylesheets="styles.css"
+            prefWidth="700"
+            xmlns="http://javafx.com/javafx/8.0.112-ea"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="FirstWindowController"
+            fx:id="openPanel">
+    <VBox spacing="10"
+          alignment="CENTER"
+          AnchorPane.leftAnchor="170"
+          AnchorPane.rightAnchor="170"
+          AnchorPane.topAnchor="180"
+          fx:id="autorization">
+        <Label fx:id="messageToUser"/>
+        <TextField layoutX="20" layoutY="20" promptText="Enter your login" fx:id="loginField"/>
+        <PasswordField  promptText="Enter your password" fx:id="passwordField" onAction="#sendAuthMessage"/>
+        <Button prefWidth="100" onAction="#sendAuthMessage" textAlignment="CENTER" fx:id="but0" alignment="CENTER_RIGHT">Enter</Button>
+    </VBox>
+    <HBox spacing="50"
+          alignment="CENTER"
+          AnchorPane.leftAnchor="170"
+          AnchorPane.rightAnchor="170"
+          AnchorPane.topAnchor="340"
+          fx:id="authHbox">
+        <Text text="Are you a new user?" fx:id="label1"/>
+        <Button onAction="#showRegForm" text="Register now" fx:id="but1" />
+    </HBox>
+    <VBox fx:id="registration"
+          visible="false"
+          spacing="10"
+          AnchorPane.leftAnchor="170"
+          AnchorPane.rightAnchor="170"
+          AnchorPane.topAnchor="180"
+          alignment="CENTER">
+        <Label fx:id="messageToUserRegistration"/>
+        <TextField  promptText="Enter your login" fx:id="loginFieldReg"/>
+        <PasswordField  promptText="Enter your password" fx:id="passwordField1"/>
+        <PasswordField  promptText="Enter your password again" fx:id="passwordField2" onAction="#sendAuthMessage"/>
+        <Button onAction="#sendRegMessage" text="Register" fx:id="but2"/>
+        <Button onAction="#exitReg" text="Exit from registration" fx:id="but3"/>
+    </VBox>
+</AnchorPane>

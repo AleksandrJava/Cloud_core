@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="MainWindowController"
+            prefHeight="600.0" prefWidth="1024.0"
+            stylesheets="MainWindowStyle.css"
+            fx:id="mainWindowAnchorePane">
+    <HBox>
+        <VBox prefWidth="512" prefHeight="600" fx:id="leftPanel" alignment="CENTER_LEFT">
+            <HBox>
+                <Label text="Computer Storage"/>
+            </HBox>
+            <ListView fx:id="LeftListView"/>
+            <HBox>
+                <Button>Add file</Button>
+                <Button>Delete</Button>
+                <Button>Update</Button>
+                <Button>Send to Cloud</Button>
+
+            </HBox>
+        </VBox>
+        <VBox prefWidth="512" prefHeight="600" fx:id="rightPanel" alignment="CENTER_RIGHT">
+            <HBox>
+                <Label text="Cloud Storage"/>
+            </HBox>
+            <ListView fx:id="RightListView"/>
+            <HBox>
+                <Button>Download</Button>
+                <Button>Update</Button>
+                <Button>Send to Cloud</Button>
+                <Button>Delete</Button>
+            </HBox>
+        </VBox>
+    </HBox>
+
+</AnchorPane>
