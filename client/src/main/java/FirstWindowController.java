@@ -47,49 +47,52 @@ public class FirstWindowController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         ConnectWithServer.connect();
+
+        Thread ServerListener = new Thread(() -> {
+            for (; ; ) {
+                Object messageFromServer = null;
+                try {
+                    messageFromServer = ConnectWithServer.readInObject();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+                if (messageFromServer.toString().startsWith("UserExist/")) {
+                    String[] receive = messageFromServer.toString().split("/");
+                    String login = receive[1];
+                    UserLogin.setLogin(login);
+                    SuccessfulEnter();
+
+                } else if (messageFromServer.toString().startsWith("WrongPassword")) {
+
+                    Platform.runLater(() -> messageToUser.setText("Wrong password"));
+
+                } else if (messageFromServer.toString().startsWith("UserNoExist")) {
+
+                    Platform.runLater(() -> messageToUser.setText("Such user doesn't exist"));
+
+                } else if (messageFromServer.toString().equals("userAlreadyExists")) {
+
+                    Platform.runLater(() -> {
+                        messageToUserRegistration.setText("Such user already exists");
+                        loginFieldReg.clear();
+                        passwordField1.clear();
+                        passwordField2.clear();
+                    });
+
+                } else if (messageFromServer.toString().equals("registrationIsSuccessful")) {
+                    Platform.runLater(() -> {
+                        exitReg();
+                        messageToUser.setText("Registration is successful. Enter in your account");
+                    });
+                }
+            }
+        });
+
         ServerListener.setDaemon(true);
         ServerListener.start();
     }
-
-    Thread ServerListener = new Thread(() -> {
-        for (;;){
-            Object messageFromServer = null;
-            try {
-                messageFromServer = ConnectWithServer.readInObject();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-            if (messageFromServer.toString().startsWith("User exist/")){
-
-                SuccessfulEnter();
-
-            }else if (messageFromServer.toString().startsWith("WrongPassword")){
-
-                Platform.runLater(() -> messageToUser.setText("Wrong password"));
-
-            }else if (messageFromServer.toString().startsWith("UserNoExist")){
-
-                Platform.runLater(() -> messageToUser.setText("Such user doesn't exist"));
-
-            }else if (messageFromServer.toString().equals("userAlreadyExists")){
-
-                Platform.runLater(() -> {
-                    messageToUserRegistration.setText("Such user already exists");
-                    loginFieldReg.clear();
-                    passwordField1.clear();
-                    passwordField2.clear();
-                });
-
-            } else if (messageFromServer.toString().equals("registrationIsSuccessful")){
-                Platform.runLater(() -> {
-                    exitReg();
-                    messageToUser.setText("Registration is successful. Enter in your account");
-                });
-            }
-        }
-    });
 
     public void showRegForm(){
         autorization.setVisible(false);
@@ -131,11 +134,13 @@ public class FirstWindowController implements Initializable {
         stage.setScene(scene);
         stage.setResizable(false);
         stage.setTitle("Cloud_core");
+
         stage.show();
     }
     public void SuccessfulEnter(){
         Platform.runLater(() -> {
             try {
+                //ConnectWithServer.disconnect();
                 switchScene();
             } catch (IOException e) {
                 e.printStackTrace();

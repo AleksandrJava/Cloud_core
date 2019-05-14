@@ -1,0 +1,15 @@
+#leftListView .list-cell:empty{
+    -fx-opacity: 0;
+}
+#rightListView .list-cell:empty {
+    -fx-opacity: 0;
+}
+
+#compStorLabel, #cloudStorLabel {
+    -fx-text-alignment: CENTER;
+    -fx-alignment: CENTER;
+}
+#attention2 {
+    -fx-text-alignment: CENTER;
+    -fx-alignment: CENTER;
+}

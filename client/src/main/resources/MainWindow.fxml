@@ -1,43 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="MainWindowController"
-            prefHeight="600.0" prefWidth="1024.0"
+
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuItem?>
+<AnchorPane fx:id="mainWindowAnchorePane"
+            prefHeight="660.0" prefWidth="1024.0"
             stylesheets="MainWindowStyle.css"
-            fx:id="mainWindowAnchorePane">
-    <HBox>
-        <VBox prefWidth="512" prefHeight="600" fx:id="leftPanel" alignment="CENTER_LEFT">
-            <HBox>
-                <Label text="Computer Storage"/>
+            xmlns="http://javafx.com/javafx/8.0.172-ea"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="MainWindowController">
+
+        <HBox>
+            <MenuBar>
+                <Menu text="File">
+                    <MenuItem text="Cut"></MenuItem>
+                    <MenuItem text="Copy"></MenuItem>
+                </Menu>
+                <Menu text="Setting">
+                    <MenuItem text="Lang"></MenuItem>
+                </Menu>
+            </MenuBar>
+        </HBox>
+
+        <HBox prefHeight="600" fx:id="mainHBox">
+        <VBox fx:id="leftPanel" alignment="CENTER_LEFT" prefWidth="512">
+            <HBox prefWidth="512.0">
+                <Label text="Computer Storage" fx:id="compStorLabel" prefWidth="512"/>
             </HBox>
-            <ListView fx:id="LeftListView"/>
+            <HBox visible="true">
+                <Label visible="false" prefWidth="512"/>
+            </HBox>
             <HBox>
-                <Button>Add file</Button>
-                <Button>Delete</Button>
-                <Button>Update</Button>
-                <Button>Send to Cloud</Button>
+                <Label prefWidth="45"/>
+                <Label text="File name" prefWidth="350"/>
+                <Label text="Size" prefWidth="117"/>
+                <Button visible="false" fx:id="returnButtonLeft"/>
+            </HBox>
+            <ListView fx:id="leftListView" />
+            <HBox>
+                <Button onAction="#addFilesInLocal">Add file</Button>
+                <Button onAction="#deleteLocalStorageFile">Delete</Button>
+                <Button onAction="#synchLocal">Update</Button>
+                <Button onAction="#transportToCloud">Send to Cloud</Button>
 
             </HBox>
         </VBox>
-        <VBox prefWidth="512" prefHeight="600" fx:id="rightPanel" alignment="CENTER_RIGHT">
+        <VBox fx:id="rightPanel" alignment="CENTER_RIGHT" prefWidth="512">
             <HBox>
-                <Label text="Cloud Storage"/>
+                <Label text="Cloud Storage" fx:id="cloudStorLabel" prefWidth="512" />
             </HBox>
-            <ListView fx:id="RightListView"/>
+            <HBox fx:id="warning" visible="true">
+                <Label text = "Attention! Can be unsafe changes. Update, please!" fx:id="attention2" visible="true" prefWidth="512"/>
+            </HBox>
             <HBox>
-                <Button>Download</Button>
-                <Button>Update</Button>
-                <Button>Send to Cloud</Button>
-                <Button>Delete</Button>
+                <Label prefWidth="45"/>
+                <Label text="File name" prefWidth="350"/>
+                <Label text="Size" prefWidth="117"/>
+                <Button visible="false" fx:id="returnButtonRight"/>
+            </HBox>
+            <ListView fx:id="rightListView" />
+            <HBox>
+                <Button onAction="#downloadFileFromCloud">Download</Button>
+                <Button onAction="#downloadFileFromLocal">Update</Button>
+                <Button onAction="#deleteCloudStorageFile">Delete</Button>
             </HBox>
         </VBox>
     </HBox>
+    <AnchorPane prefHeight="30" prefWidth="1024">
+
+    </AnchorPane>
 
 </AnchorPane>
