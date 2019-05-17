@@ -69,6 +69,8 @@
 #leftListView .scroll-bar > .thumb , #rightListView .scroll-bar > .thumb{
     -fx-background-color: #1f3960;
 }
+
+
 #leftListView .scroll-bar > .increment-button, #rightListView .scroll-bar > .increment-button,
 #leftListView .scroll-bar > .decrement-button, #rightListView .scroll-bar > .decrement-button{
     -fx-background-color: #1f3960;
@@ -102,11 +104,9 @@
     -fx-background-color: #d5d5d5 ;
 }
 
-#hBox1{
-    -fx-padding: 10;
-}
-#hBox2{
+#hBox2, #hBox1{
     -fx-alignment: CENTER ;
+    -fx-padding: 10;
 }
 
 #company{
