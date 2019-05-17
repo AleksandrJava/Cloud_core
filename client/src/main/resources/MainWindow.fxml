@@ -12,70 +12,72 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuItem?>
 <AnchorPane fx:id="mainWindowAnchorePane"
-            prefHeight="660.0" prefWidth="1024.0"
+            prefHeight="680" prefWidth="1024.0"
             stylesheets="MainWindowStyle.css"
             xmlns="http://javafx.com/javafx/8.0.172-ea"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="MainWindowController">
-
-        <HBox>
-            <MenuBar>
-                <Menu text="File">
-                    <MenuItem text="Cut"></MenuItem>
-                    <MenuItem text="Copy"></MenuItem>
-                </Menu>
-                <Menu text="Setting">
-                    <MenuItem text="Lang"></MenuItem>
+    <VBox prefHeight="680" fx:id="mainVbox">
+        <AnchorPane fx:id="hBoxMenu" prefHeight="40">
+            <MenuBar fx:id="menuBar" AnchorPane.topAnchor="5" AnchorPane.rightAnchor="5">
+                <Menu fx:id="menu" >
+                    <MenuItem text="Change profile" onAction="#changeProfile"/>
+                    <MenuItem text="Exit" onAction="#exitFromProg"/>
                 </Menu>
             </MenuBar>
-        </HBox>
+        </AnchorPane>
 
         <HBox prefHeight="600" fx:id="mainHBox">
-        <VBox fx:id="leftPanel" alignment="CENTER_LEFT" prefWidth="512">
-            <HBox prefWidth="512.0">
+        <VBox prefHeight="600" fx:id="leftPanel" alignment="CENTER_LEFT" prefWidth="512">
+            <HBox prefHeight="35" prefWidth="512.0" fx:id="hBoxLeft1">
                 <Label text="Computer Storage" fx:id="compStorLabel" prefWidth="512"/>
             </HBox>
-            <HBox visible="true">
-                <Label visible="false" prefWidth="512"/>
+            <HBox>
+                <Label fx:id="attention1" text="no" visible="false" prefWidth="512"/>
             </HBox>
             <HBox>
-                <Label prefWidth="45"/>
+                <Label prefWidth="10"/>
+                <Button fx:id="backBut1" prefWidth="25" text="back" visible="false" onAction="#goPreviousDirectoryInLocal"/>
+                <Label prefWidth="10"/>
                 <Label text="File name" prefWidth="350"/>
                 <Label text="Size" prefWidth="117"/>
                 <Button visible="false" fx:id="returnButtonLeft"/>
             </HBox>
-            <ListView fx:id="leftListView" />
-            <HBox>
-                <Button onAction="#addFilesInLocal">Add file</Button>
-                <Button onAction="#deleteLocalStorageFile">Delete</Button>
-                <Button onAction="#synchLocal">Update</Button>
-                <Button onAction="#transportToCloud">Send to Cloud</Button>
-
+            <ListView fx:id="leftListView" onMouseClicked="#goNextDirectoryOrOpenFileInLocal"/>
+            <HBox spacing="10" fx:id="hBox1">
+                <Button onAction="#addFilesInLocal" fx:id="but10">Add file</Button>
+                <Button onAction="#deleteLocalStorageFile" fx:id="but11">Delete</Button>
+                <Button onAction="#synchLocal" fx:id="but12">Update</Button>
+                <Button onAction="#transportToCloud" fx:id="but13">Send to Cloud</Button>
             </HBox>
         </VBox>
-        <VBox fx:id="rightPanel" alignment="CENTER_RIGHT" prefWidth="512">
-            <HBox>
+        <VBox prefHeight="600" fx:id="rightPanel" alignment="CENTER_RIGHT" prefWidth="512">
+            <HBox prefHeight="35">
                 <Label text="Cloud Storage" fx:id="cloudStorLabel" prefWidth="512" />
             </HBox>
-            <HBox fx:id="warning" visible="true">
+            <HBox fx:id="warning">
                 <Label text = "Attention! Can be unsafe changes. Update, please!" fx:id="attention2" visible="true" prefWidth="512"/>
             </HBox>
             <HBox>
-                <Label prefWidth="45"/>
+                <Label prefWidth="10"/>
+                <Button fx:id="backBut2" prefWidth="25" text="back" visible="false" onAction="#goPreviousDirectoryInCloud"/>
+                <Label prefWidth="10"/>
                 <Label text="File name" prefWidth="350"/>
                 <Label text="Size" prefWidth="117"/>
                 <Button visible="false" fx:id="returnButtonRight"/>
             </HBox>
-            <ListView fx:id="rightListView" />
-            <HBox>
-                <Button onAction="#downloadFileFromCloud">Download</Button>
-                <Button onAction="#downloadFileFromLocal">Update</Button>
-                <Button onAction="#deleteCloudStorageFile">Delete</Button>
+            <ListView fx:id="rightListView" onMouseClicked="#goNextDirectoryOrOpenFileInCloud" />
+            <HBox spacing="10" fx:id="hBox2">
+                <Button onAction="#downloadFileFromCloud" fx:id="but14">Download</Button>
+                <Button onAction="#downloadFileFromLocal" fx:id="but15">Update</Button>
+                <Button onAction="#deleteCloudStorageFile" fx:id="but16">Delete</Button>
             </HBox>
         </VBox>
     </HBox>
-    <AnchorPane prefHeight="30" prefWidth="1024">
+        <AnchorPane>
+            <Label AnchorPane.rightAnchor="20" fx:id="company">@AA.Product. All rights reserved. 2019</Label>
+        </AnchorPane>
+    </VBox>
 
-    </AnchorPane>
 
 </AnchorPane>

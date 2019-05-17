@@ -43,8 +43,9 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
                 AuthService.disconnect();
             } else if (msg instanceof FileMessage) {
                 FileMessage fileMessage = (FileMessage) msg;
+                System.out.println("name is " + fileMessage.getFileName());
                 Path pathToNewFile = Paths.get("server/storage/" + fileMessage.getLogin() + File.separator + fileMessage.getFileName());
-                if (fileMessage.isDirectory() && fileMessage.isEmpty()) {
+                if (fileMessage.isDirectory()) {
                     if (Files.exists(pathToNewFile)) {
                         System.out.println("Файл с таким именем уже существует");
                     } else {
@@ -60,11 +61,19 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
                         }
                         Files.write(Paths.get("server/storage/" + fileMessage.getLogin() + File.separator + fileMessage.getFileName()), fileMessage.getData(), StandardOpenOption.CREATE);
                     }
+
                 }
                 ctx.writeAndFlush(new SynchroMessage(getFilesFromCloud(fileMessage.getLogin())));
 
+
             } else if (msg instanceof SynchroMessage){
                 SynchroMessage message = (SynchroMessage) msg;
+
+                Path paths = Paths.get("server/storage/" + message.getLogin());
+                if(!Files.exists(paths)){
+                    Files.createDirectory(paths);
+                }
+
                 ctx.writeAndFlush(new SynchroMessage(getFilesFromCloud(message.getLogin())));
             } else if (msg instanceof FileRequest) {
                 FileRequest message = (FileRequest) msg;

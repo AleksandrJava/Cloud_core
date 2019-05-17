@@ -1,6 +1,8 @@
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 
 public class FileMessage extends AbstractMessage{
     private String login;
@@ -8,6 +10,7 @@ public class FileMessage extends AbstractMessage{
     private byte[] arr;
     private boolean isDirectory;
     private boolean isEmpty;
+    private ArrayList<Path> filesInPackage;
 
     public FileMessage(Path path) throws IOException {
         name = path.getFileName().toString();
@@ -24,6 +27,10 @@ public class FileMessage extends AbstractMessage{
         name = path.getFileName().toString();
         arr = Files.readAllBytes(path);
         this.login = login;
+    }
+    public FileMessage(String fileName, boolean isDirectory){
+        this.isDirectory = isDirectory;
+        this.name = fileName;
     }
 
     public String getFileName() {

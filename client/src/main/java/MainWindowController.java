@@ -2,22 +2,31 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.image.Image;
 import javafx.scene.input.*;
 
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 
-
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.*;
 import java.util.*;
+import java.util.List;
 
 public class MainWindowController implements Initializable {
 
@@ -27,13 +36,22 @@ public class MainWindowController implements Initializable {
     ListView<FileInStorage> rightListView;
     @FXML
     HBox warning;
-
+    @FXML
+    Menu menu;
+    @FXML
+    MenuBar menuBar;
+    @FXML
+    Button backBut1;
+    @FXML
+    Button backBut2;
 
     private String userDirectory = "client" + File.separator + "LocalStorage";
     private int localStorageLevel = 0;
     private int cloudStorageLevel = 0;
 
+    private HashMap<Integer, ArrayList<File>> hashMapCloudStorage;
     private ArrayList<File> returnCloudStorage;
+    private ArrayList<File> pathsCloudFiles;
     FileChooser fileChooser = new FileChooser();
 
     @Override
@@ -57,7 +75,8 @@ public class MainWindowController implements Initializable {
                         SynchroMessage message = (SynchroMessage) messageFromServer;
                         returnCloudStorage = new ArrayList<>();
                         returnCloudStorage.addAll(message.getCloudStorageContents());
-
+                        hashMapCloudStorage = new HashMap<>();
+                        hashMapCloudStorage.put(cloudStorageLevel, message.getCloudStorageContents());
                         Platform.runLater(() -> initializeCloudList(returnCloudStorage));
                     } else if (messageFromServer instanceof FileMessage){
                         FileMessage fileMessage = (FileMessage) messageFromServer;
@@ -106,8 +125,10 @@ public class MainWindowController implements Initializable {
          } else if(listLocalFiles.length > 0){
              for (int i = 0; i < listLocalFiles.length; i++) {
                  long size;
+                 boolean choose = false;
                  String name = listLocalFiles[i].getName();
                  if (listLocalFiles[i].isDirectory()){
+                     choose = true;
                      size = getSizeOfDirectory(listLocalFiles[i]);
                  } else {
                      size = listLocalFiles[i].length();
@@ -332,10 +353,9 @@ public class MainWindowController implements Initializable {
         leftListView.setOnDragDetected(event -> {
             Dragboard db = leftListView.startDragAndDrop(TransferMode.COPY);
             ClipboardContent content = new ClipboardContent();
-            List<File> localFiles = new LinkedList<File>();
+            List<File> localFiles = new LinkedList<>();
             localFiles.addAll(getSelectedFilesInLocal());
             content.putFiles(localFiles);
-            leftListView.setStyle("-fx-opacity: 1;");
             db.setContent(content);
         });
 
@@ -466,13 +486,172 @@ public class MainWindowController implements Initializable {
         warning.setVisible(true);
     }
 
+    public void goNextDirectoryOrOpenFileInLocal(MouseEvent event){
+        if(event.getClickCount() == 1){
+            leftListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        } else if(event.getClickCount() == 2){
+            leftListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+            if(leftListView.getSelectionModel().getSelectedItems().size() == 1){
+                File pathToFile = leftListView.getSelectionModel().getSelectedItem().getPath();
+                if(pathToFile.isDirectory()){
+                    File[] clickedDirectory = pathToFile.listFiles();
+                    if(clickedDirectory.length != 0){
+                        localStorageLevel++;
+                        if(localStorageLevel > 0){
+                            backBut1.setVisible(true);
+                            userDirectory += File.separator + pathToFile.getName();
+                        }
+                        ObservableList<FileInStorage> list = FXCollections.observableArrayList();
+                        for (int i = 0; i < clickedDirectory.length; i++) {
+                            String name = clickedDirectory[i].getName();
+                            long size = 0;
+                            if(clickedDirectory[i].isDirectory()){
+                                size = getSizeOfDirectory(clickedDirectory[i]);
+                            } else size = clickedDirectory[i].length();
+                            File pathToThisFile = new File(clickedDirectory[i].getAbsolutePath());
+                            list.addAll(new FileInStorage(name, pathToThisFile, size, false));
+                            leftListView.setItems(list);
+                            leftListView.setCellFactory(param -> new StorageListView());
+                        }
+                    }
+                } else {
+                    Desktop desktop = null;
+                    if(desktop.isDesktopSupported()){
+                        desktop = desktop.getDesktop();
+                        try {
+                            desktop.open(pathToFile);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+    }
+    public void goPreviousDirectoryInLocal(){
+        ObservableList<FileInStorage> list = FXCollections.observableArrayList();
+        ArrayList<File> files = new ArrayList<>();
+        File file = new File(userDirectory);
+        File prevDerect = new File(file.getParent());
+        File[] content = prevDerect.listFiles();
+        for (int i = 0; i < content.length; i++) {
+            files.add(content[i]);
+        }
+        for (int i = 0; i < files.size(); i++) {
+            String name = files.get(i).getName();
+            long size;
+            if (files.get(i).isDirectory()) {
+                size = getSizeOfDirectory(files.get(i));
+            } else size = files.get(i).length();
 
-    public void openMenuChangeOrExit(){
-        System.out.println("1");
+            File path = files.get(i).getAbsoluteFile();
+            list.addAll(new FileInStorage(name, path, size, false));
+        }
+        leftListView.setItems(list);
+        leftListView.setCellFactory(param -> new StorageListView());
+        localStorageLevel--;
+        if(localStorageLevel <= 0){
+            backBut1.setVisible(false);
+            userDirectory = "client" + File.separator + "LocalStorage";
+        } else userDirectory = prevDerect.toString();
+
     }
 
 
 
+    public void goNextDirectoryOrOpenFileInCloud(MouseEvent event){
+        pathsCloudFiles = new ArrayList<>();
+        if(event.getClickCount() == 1){
+            rightListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        } else if(event.getClickCount() == 2){
+            rightListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+            if(rightListView.getSelectionModel().getSelectedItems().size() != 1){
+                File pathToFile = new File("");
+                for (int i = 0; i < hashMapCloudStorage.get(cloudStorageLevel).size() ; i++) {
+                    File file = hashMapCloudStorage.get(cloudStorageLevel).get(i);
+                    if(rightListView.getSelectionModel().getSelectedItem().getName().equals(file.getName())){
+                       pathToFile = hashMapCloudStorage.get(cloudStorageLevel).get(i);
+                    }
+                }
+                if(pathToFile.isDirectory()){
+                    if(cloudStorageLevel > 0){
+                        backBut2.setVisible(true);
+                    }
+                    File[] directory = pathToFile.listFiles();
+                    if(!(directory.length == 0)){
+                        for (int i = 0; i < directory.length; i++) {
+                            try {
+                                pathsCloudFiles.add(directory[i]);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        cloudStorageLevel++;
+
+                        hashMapCloudStorage.put(cloudStorageLevel, pathsCloudFiles);
+                        ObservableList<FileInStorage> listOfCloudItems = FXCollections.observableArrayList();
+                        for (int i = 0; i < directory.length; i++) {
+                            String name = directory[i].getName();
+                            long size = directory[i].length();
+                            File path = new File(directory[i].getAbsolutePath());
+                            listOfCloudItems.addAll(new FileInStorage(name, path, size, false));
+                            rightListView.setItems(listOfCloudItems);
+                            rightListView.setCellFactory(param -> new StorageListView());
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    public void goPreviousDirectoryInCloud(){
+        ObservableList<FileInStorage> list = FXCollections.observableArrayList();
+        ArrayList<File> files = new ArrayList<>();
+        for (int i = 0; i < hashMapCloudStorage.get(cloudStorageLevel - 1).size(); i++) {
+            files.add(hashMapCloudStorage.get(cloudStorageLevel - 1).get(i));
+        }
+        for (int i = 0; i < files.size(); i++) {
+            String name = files.get(i).getName();
+            long size;
+            if(files.get(i).isDirectory()){
+                size = getSizeOfDirectory(files.get(i));
+            } else size = files.get(i).length();
+            File path = new File(files.get(i).getAbsolutePath());
+            list.addAll(new FileInStorage(name, path, size, false));
+        }
+        rightListView.setItems(list);
+        rightListView.setCellFactory(param -> new StorageListView());
+        hashMapCloudStorage.remove(cloudStorageLevel);
+        cloudStorageLevel--;
+        if(cloudStorageLevel <= 0) backBut2.setVisible(false);
+    }
+
+
+    public void changeProfile(){
+        try {
+            Stage stage;
+            Parent root;
+            stage = (Stage)menuBar.getScene().getWindow();
+            root = FXMLLoader.load(getClass().getResource("/firstWindow.fxml"));
+            stage.setTitle("Oblachko");
+            Image icon = new Image(getClass().getResourceAsStream("/iconfinder_cloud_1287533.png"));
+            stage.getIcons().add(icon);
+            Scene scene = new Scene(root, 700, 450, Color.BEIGE);
+            stage.setResizable(false); //неизменяемость размера
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void exitFromProg(){
+        Stage stage;
+        stage = (Stage) menuBar.getScene().getWindow();
+        stage.close();
+    }
 
 
 }

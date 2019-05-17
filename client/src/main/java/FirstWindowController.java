@@ -140,7 +140,6 @@ public class FirstWindowController implements Initializable {
     public void SuccessfulEnter(){
         Platform.runLater(() -> {
             try {
-                //ConnectWithServer.disconnect();
                 switchScene();
             } catch (IOException e) {
                 e.printStackTrace();

@@ -70,8 +70,42 @@ public class ConnectWithServer {
             if(!files.isEmpty()){
                 for (int i = 0; i < files.size(); i++) {
                     Path path = Paths.get(files.get(i).getAbsolutePath());
-                    out.writeObject(new FileMessage(login, path));
-                    out.flush();
+                    File file = new File(files.get(i).getAbsolutePath());
+                    if(file.isDirectory()){
+                        String name = path.toString().substring(58);
+                        System.out.println(name);
+                        out.writeObject(new FileMessage(name, true));
+                        out.flush();
+                        takeFilesFromPackage(file, login);
+                    } else {
+                        out.writeObject(new FileMessage(login, path));
+                        out.flush();
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void takeFilesFromPackage(File path, String login){
+        try {
+            File[] filesList = path.listFiles();
+            if(filesList.length > 0){
+                for (File a: filesList) {
+                    Path pathToFile = Paths.get(a.getAbsolutePath());
+                    File ifPackage = new File(a.getAbsolutePath());
+                    if(ifPackage.isDirectory()){
+                        String name = pathToFile.toString().substring(58);
+                        System.out.println(name);
+                        out.writeObject(new FileMessage(name, true));
+                        out.flush();
+                        takeFilesFromPackage(ifPackage, login);
+                    } else {
+                        out.writeObject(new FileMessage(login, pathToFile));
+                        out.flush();
+                    }
+
                 }
             }
         } catch (IOException e) {
