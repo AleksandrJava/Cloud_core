@@ -135,7 +135,7 @@ public class ConnectWithServer {
 
     public static void sendSynchroFromCloud(String login){
         try {
-            out.writeObject(new LocalAndCloudSynchroMessage(login));
+            out.writeObject(new CommandMessage(CommandMessage.Command.SYNCH_LOCAL, login));
             out.flush();
         } catch (IOException e) {
             e.printStackTrace();
@@ -144,7 +144,7 @@ public class ConnectWithServer {
 
     public static void sendSynchroFromLocal(String login){
         try {
-            out.writeObject(new CloudSynchroMessage(login));
+            out.writeObject(new CommandMessage(CommandMessage.Command.SYNCH_CLOUD, login));
             out.flush();
         } catch (IOException e) {
             e.printStackTrace();

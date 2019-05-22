@@ -17,8 +17,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-
-
 public class FirstWindowController implements Initializable {
     @FXML
     VBox autorization;
@@ -49,7 +47,7 @@ public class FirstWindowController implements Initializable {
         ConnectWithServer.connect();
 
         Thread ServerListener = new Thread(() -> {
-            for (; ; ) {
+            while (true){
                 Object messageFromServer = null;
                 try {
                     messageFromServer = ConnectWithServer.readInObject();
@@ -58,34 +56,37 @@ public class FirstWindowController implements Initializable {
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
-                if (messageFromServer.toString().startsWith("UserExist/")) {
-                    String[] receive = messageFromServer.toString().split("/");
-                    String login = receive[1];
-                    UserLogin.setLogin(login);
-                    SuccessfulEnter();
+                if (messageFromServer instanceof CommandMessage) {
+                    switch (((CommandMessage) messageFromServer).getCommand()) {
+                        case AUTH_SUCCESS:
+                            UserLogin.setLogin(((CommandMessage) messageFromServer).getMsg());
+                            SuccessfulEnter();
+                            break;
+                        case AUTH_FAILED:
+                            Platform.runLater(() -> messageToUser.setText("Wrong password"));
+                            break;
+                        case AUTH_NO_SUCH_USER:
+                            Platform.runLater(() -> messageToUser.setText("Such user doesn't exist"));
+                            break;
+                        case REG_ALREADY_EXIST:
+                            Platform.runLater(() -> {
+                                messageToUserRegistration.setText("Such user already exists");
+                                loginFieldReg.clear();
+                                passwordField1.clear();
+                                passwordField2.clear();
+                            });
+                            break;
+                        case REG_SUCCESS:
+                            Object finalMessageFromServer = messageFromServer;
+                            Platform.runLater(() -> {
+                                exitReg();
+                                messageToUser.setText("Registration is successful. Enter in your account");
+                                loginField.clear();
+                                loginField.insertText(0,((CommandMessage) finalMessageFromServer).getMsg());
+                            });
+                            break;
+                    }
 
-                } else if (messageFromServer.toString().startsWith("WrongPassword")) {
-
-                    Platform.runLater(() -> messageToUser.setText("Wrong password"));
-
-                } else if (messageFromServer.toString().startsWith("UserNoExist")) {
-
-                    Platform.runLater(() -> messageToUser.setText("Such user doesn't exist"));
-
-                } else if (messageFromServer.toString().equals("userAlreadyExists")) {
-
-                    Platform.runLater(() -> {
-                        messageToUserRegistration.setText("Such user already exists");
-                        loginFieldReg.clear();
-                        passwordField1.clear();
-                        passwordField2.clear();
-                    });
-
-                } else if (messageFromServer.toString().equals("registrationIsSuccessful")) {
-                    Platform.runLater(() -> {
-                        exitReg();
-                        messageToUser.setText("Registration is successful. Enter in your account");
-                    });
                 }
             }
         });

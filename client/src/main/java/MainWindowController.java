@@ -125,10 +125,8 @@ public class MainWindowController implements Initializable {
          } else if(listLocalFiles.length > 0){
              for (int i = 0; i < listLocalFiles.length; i++) {
                  long size;
-                 boolean choose = false;
                  String name = listLocalFiles[i].getName();
                  if (listLocalFiles[i].isDirectory()){
-                     choose = true;
                      size = getSizeOfDirectory(listLocalFiles[i]);
                  } else {
                      size = listLocalFiles[i].length();

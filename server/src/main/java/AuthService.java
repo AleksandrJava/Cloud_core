@@ -5,7 +5,7 @@ public class AuthService {
     private static Connection connection;
     private static Statement stmt;
 
-    public static void connect() throws SQLException {
+    public static synchronized void connect() throws SQLException {
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:mainDB.db");
@@ -15,7 +15,7 @@ public class AuthService {
         }
     }
 
-    public static void disconnect(){
+    public static synchronized void disconnect(){
         try {
             stmt.close();
         } catch (SQLException e) {
@@ -28,8 +28,10 @@ public class AuthService {
         }
     }
 
-    public static boolean checkPassword(String login, String password){
+    public static synchronized UserLogin checkPassword(String login, String password){
+        UserLogin user = null;
         try {
+            connect();
             String sql = String.format("SELECT password FROM main\n" + "where login = '%s'", login);
             ResultSet rs = stmt.executeQuery(sql);
             System.out.println("login = " + login + " password = " + password);
@@ -38,21 +40,26 @@ public class AuthService {
             System.out.println("Password from DB = " + passwordFromDB);
             System.out.println("Hashcode = " + password.hashCode());
             if (passwordFromDB == password.hashCode()) {
-                System.out.println("YEEEEEEESSS");
-                return true;
+                user = new UserLogin(login);
+                disconnect();
+                return user;
             }
+            disconnect();
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return false;
+        return user;
     }
 
-    public static void addUser(String login, String pass) {
+    public static synchronized void addUser(String login, String pass) {
+
         String sql = String.format("INSERT INTO main (login, password)" +
                 "VALUES ('%s', '%s')", login, pass.hashCode());
         try {
+            connect();
             stmt.execute(sql);
+            disconnect();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -60,14 +67,17 @@ public class AuthService {
     }
 
 
-    public static boolean checkHaveThisUser(String login) {
+    public static synchronized boolean checkHaveThisUser(String login) {
         try {
+            connect();
             String sql = String.format("SELECT login FROM main\n" + "where login = '%s'", login);
             ResultSet rs = stmt.executeQuery(sql);
 
             if (rs.next()) {
+                disconnect();
                 return true;
-            } else return false;
+            }
+            disconnect();
 
         } catch (SQLException e) {
             e.printStackTrace();

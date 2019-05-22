@@ -3,7 +3,6 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -11,38 +10,46 @@ import java.nio.file.Paths;
 
 public class MessageHandler extends ChannelInboundHandlerAdapter {
  private UserLogin user;
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
         if (msg == null) {
             return;
         } else {
-            if (msg instanceof MessageAuthentification) {
-                MessageAuthentification message = (MessageAuthentification) msg;
-                AuthService.connect();
-                if (AuthService.checkHaveThisUser(message.getLogin())) {
-                    if (AuthService.checkPassword(message.getLogin(), message.getPassword())) {
-                        //инициализируем
-                        user = new UserLogin(message.getLogin());
+            if (msg instanceof CommandMessage) {
+                switch (((CommandMessage) msg).getCommand()) {
+                    case SYNCH_LOCAL:
+                        ctx.writeAndFlush(new MessageGetListLocalOrCloud(ServerOtherFunction.getFilesFromCloud(((CommandMessage) msg).getMsg())));
+                        break;
+                    case SYNCH_CLOUD:
+                        ctx.writeAndFlush(new UpdateMessageCloud(ServerOtherFunction.getFilesFromCloud(((CommandMessage) msg).getMsg())));
+                        break;
+                }
 
-                        ctx.writeAndFlush("UserExist/" + message.getLogin());
+            } else if(msg instanceof MessageAuthentification) {
+                MessageAuthentification message = (MessageAuthentification) msg;
+                if (AuthService.checkHaveThisUser(message.getLogin())) {
+                    user = AuthService.checkPassword(message.getLogin(), message.getPassword());
+                    System.out.println(user.getLogin());
+                    if (user != null) {
+                        ctx.writeAndFlush(new CommandMessage(CommandMessage.Command.AUTH_SUCCESS, message.getLogin()));
                     } else {
-                        ctx.writeAndFlush("WrongPassword");
+                        ctx.writeAndFlush(new CommandMessage(CommandMessage.Command.AUTH_FAILED));
                     }
                 } else {
-                    ctx.writeAndFlush("UserNoExist");
+                    ctx.writeAndFlush(new CommandMessage(CommandMessage.Command.AUTH_NO_SUCH_USER));
                 }
-                AuthService.disconnect();
+
             } else if (msg instanceof MessageRegistration) {
                 MessageRegistration message = (MessageRegistration) msg;
-                AuthService.connect();
                 if (AuthService.checkHaveThisUser(message.getLogin())) {
-                    ctx.writeAndFlush("userAlreadyRegistered");
+                    ctx.writeAndFlush(new CommandMessage(CommandMessage.Command.REG_ALREADY_EXIST));
                 } else {
                     AuthService.addUser(message.getLogin(), message.getPassword());
-                    ctx.writeAndFlush("registrationIsSuccessful");
+                    ctx.writeAndFlush(new CommandMessage(CommandMessage.Command.REG_SUCCESS, message.getLogin()));
                 }
-                AuthService.disconnect();
+
             } else if (msg instanceof FileMessage) {
                 FileMessage fileMessage = (FileMessage) msg;
                 ServerOtherFunction.fileMessageMethod(fileMessage.getLogin(),
@@ -54,13 +61,11 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
             } else if (msg instanceof SynchroMessage){
                 SynchroMessage message = (SynchroMessage) msg;
 
-                //Если убрать строчку сиаута, то всё работае
-                System.out.println(user.getLogin());
+                //Если убрать строчку sout, то всё работает, то есть
+                //user почему-то не инициализирован
+                //System.out.println(user.getLogin());
                 //
-                Path paths = Paths.get("server/storage/" + message.getLogin());
-                if(!Files.exists(paths)){
-                    Files.createDirectory(paths);
-                }
+                ServerOtherFunction.synchroMessageMethod(message.getLogin());
 
                 ctx.writeAndFlush(new SynchroMessage(ServerOtherFunction.getFilesFromCloud(message.getLogin())));
             } else if (msg instanceof FileRequest) {
@@ -84,21 +89,10 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
                     }
 
                 }
-            } else if (msg instanceof LocalAndCloudSynchroMessage){
-                LocalAndCloudSynchroMessage message = (LocalAndCloudSynchroMessage) msg;
-                ctx.writeAndFlush(new MessageGetListLocalOrCloud(ServerOtherFunction.getFilesFromCloud(message.getLogin())));
-            } else if (msg instanceof CloudSynchroMessage){
-                CloudSynchroMessage message = (CloudSynchroMessage) msg;
-                ctx.writeAndFlush(new UpdateMessageCloud(ServerOtherFunction.getFilesFromCloud(message.getLogin())));
             } else if (msg instanceof DeleteInCloudMessage) {
                 DeleteInCloudMessage message = (DeleteInCloudMessage) msg;
                 for (int i = 0; i < message.getArray().size(); i++) {
-                    File fileToDelete = new File(message.getArray().get(i).getAbsolutePath());
-                    if (fileToDelete.isDirectory()) {
-                        ServerOtherFunction.deleteRecursively(fileToDelete);
-                    } else {
-                        fileToDelete.delete();
-                    }
+                    ServerOtherFunction.deleteMethod(message.getArray().get(i).getAbsolutePath());
                 }
                 message.getArray().clear();
 
@@ -113,26 +107,10 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
 
     }
 
-
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         AuthService.disconnect();
         ctx.close();
     }
-
-    public class UserLogin {
-        private String login;
-
-        public UserLogin(String login) {
-            this.login = login;
-        }
-
-        public String getLogin() {
-            return login;
-        }
-
-    }
-
-
 
 }

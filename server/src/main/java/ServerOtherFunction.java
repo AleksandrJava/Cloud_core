@@ -64,4 +64,27 @@ public class ServerOtherFunction {
             e.printStackTrace();
         }
     }
+
+    public static void synchroMessageMethod(String login){
+        try {
+            Path paths = Paths.get("server/storage/" + login);
+            if(!Files.exists(paths)){
+                Files.createDirectory(paths);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public static void deleteMethod(String path) {
+        try {
+            File fileToDelete = new File(path);
+            if (fileToDelete.isDirectory()) {
+                deleteRecursively(fileToDelete);
+            } else {
+                fileToDelete.delete();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
